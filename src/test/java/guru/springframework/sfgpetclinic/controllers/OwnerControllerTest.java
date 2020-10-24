@@ -1,7 +1,6 @@
 package guru.springframework.sfgpetclinic.controllers;
 
 import guru.springframework.sfgpetclinic.fauxspring.BindingResult;
-import guru.springframework.sfgpetclinic.fauxspring.MockBindingResult;
 import guru.springframework.sfgpetclinic.model.Owner;
 import guru.springframework.sfgpetclinic.services.OwnerService;
 import org.junit.jupiter.api.Test;
@@ -24,10 +23,13 @@ class OwnerControllerTest {
     @InjectMocks
     private OwnerController controller;
 
+    @Mock
+    private BindingResult bindingResult;
+
     @Test
     void testProcessCreationFormWithErrors() {
-        BindingResult bindingResult = new MockBindingResult(true);
         Owner owner = new Owner(1L, "test", "test");
+        when(bindingResult.hasErrors()).thenReturn(true);
 
         String returnedView = controller.processCreationForm(owner, bindingResult);
 
@@ -36,12 +38,12 @@ class OwnerControllerTest {
 
     @Test
     void testProcessCreationFormWithoutErrors() {
-        BindingResult result = new MockBindingResult(false);
         Owner owner = new Owner(5L, "test", "test");
+        when(bindingResult.hasErrors()).thenReturn(false);
 
         when(service.save(any())).thenReturn(owner);
 
-        String returnedView = controller.processCreationForm(owner, result);
+        String returnedView = controller.processCreationForm(owner, bindingResult);
 
         assertEquals("redirect:/owners/5", returnedView);
         verify(service).save(any());
